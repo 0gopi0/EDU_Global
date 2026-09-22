@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+
+.env
+.env.local
+.env.*.local
+
+*.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Command Code's locally-learned preferences — tooling state, not project source.
+.commandcode/
