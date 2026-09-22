@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+/* Design tokens. Tailwind v4 is CSS-first: these variables generate the
+   matching utilities (bg-brand-600, text-brand-700, ...), so the whole palette
+   can be rethemed from this one block. */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --color-brand-50: #eff5ff;
+  --color-brand-100: #dbe8fe;
+  --color-brand-200: #bfd7fe;
+  --color-brand-300: #93bbfd;
+  --color-brand-400: #6096fa;
+  --color-brand-500: #3b76f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4fd7;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  /* Dark palette for the marketing landing page (Home). */
+  --color-ink-950: #070c17;
+  --color-ink-900: #0b1327;
+  --color-ink-800: #111c36;
+  --color-ink-700: #1a2745;
+  --color-ink-600: #2a3a5e;
+
+  --color-gold-200: #f4e7bd;
+  --color-gold-300: #ecd68f;
+  --color-gold-400: #e0c063;
+  --color-gold-500: #d0a53c;
+  --color-gold-600: #b3872a;
+
+  --animate-marquee: marquee 38s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  /* In-page anchors on the landing page scroll smoothly. */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  /* Consistent, visible keyboard focus without the default double outline. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}
+
+/* The markdown renderer ships its own typography and a white background. Match
+   the app font and let the surrounding card provide the background. */
+.wmde-markdown,
+.w-md-editor {
+  font-family: var(--font-sans);
+}
+
+.wmde-markdown {
+  background-color: transparent;
+}
+
+/* Images inside a post body should never overflow the article column. */
+.wmde-markdown img {
+  border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
+}
