@@ -1,13 +1,45 @@
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 export const HOME_NAV = [
-  { label: 'Ecosystem', href: '#ecosystem' },
-  { label: 'About', href: '#about' },
-  { label: 'Franchise', href: '#franchise' },
-  { label: 'Admissions', href: '#admissions' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: '#top' },
+  { label: 'About', href: '/about' },
+  { label: 'Franchise', href: '/franchise' },
 ] as const
+
+export function NavItem({
+  label,
+  href,
+  className,
+  onClick,
+}: {
+  label: string
+  href: string
+  className: string
+  onClick?: () => void
+}) {
+  const { pathname } = useLocation()
+
+  // The header is shared by the home page and the About page. Hash links only
+  // resolve on the home page, so elsewhere they are pointed back at the root
+  // instead of silently rewriting the current URL's hash.
+  const resolved = href.startsWith('#') && pathname !== '/' ? `/${href}` : href
+
+  if (resolved.startsWith('/')) {
+    return (
+      <Link to={resolved} className={className} onClick={onClick}>
+        {label}
+      </Link>
+    )
+  }
+
+  return (
+    <a href={resolved} className={className} onClick={onClick}>
+      {label}
+    </a>
+  )
+}
 
 export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
@@ -39,13 +71,12 @@ export function HomeHeader() {
 
         <nav className="hidden items-center gap-8 lg:flex">
           {HOME_NAV.map((item) => (
-            <a
+            <NavItem
               key={item.label}
+              label={item.label}
               href={item.href}
               className="text-sm text-slate-300 transition-colors hover:text-gold-400"
-            >
-              {item.label}
-            </a>
+            />
           ))}
         </nav>
 
@@ -73,14 +104,13 @@ export function HomeHeader() {
         <div className="border-t border-white/10 bg-ink-950 lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col px-5 py-3 sm:px-8">
             {HOME_NAV.map((item) => (
-              <a
+              <NavItem
                 key={item.label}
+                label={item.label}
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className="border-b border-white/5 py-3 text-sm text-slate-300 last:border-0 hover:text-gold-400"
-              >
-                {item.label}
-              </a>
+              />
             ))}
             <a
               href="#contact"

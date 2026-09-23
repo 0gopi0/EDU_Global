@@ -1,9 +1,9 @@
-import { Wordmark } from './HomeHeader'
+import { NavItem, Wordmark } from './HomeHeader'
 
 const NAVIGATE = [
   { label: 'Ecosystem', href: '#ecosystem' },
   { label: 'About', href: '#about' },
-  { label: 'Franchise Model', href: '#franchise' },
+  { label: 'Franchise Model', href: '/franchise' },
   { label: 'Admissions & Growth', href: '#admissions' },
   { label: 'Contact', href: '#contact' },
 ] as const
@@ -32,12 +32,11 @@ export function HomeFooter() {
             <ul className="mt-5 space-y-3">
               {NAVIGATE.map((item) => (
                 <li key={item.label}>
-                  <a
+                  <NavItem
+                    label={item.label}
                     href={item.href}
                     className="text-sm text-slate-400 transition-colors hover:text-gold-400"
-                  >
-                    {item.label}
-                  </a>
+                  />
                 </li>
               ))}
             </ul>

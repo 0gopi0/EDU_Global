@@ -6,8 +6,10 @@ import { PublicLayout } from './layouts/PublicLayout'
 import { Dashboard } from './pages/admin/Dashboard'
 import { Login } from './pages/admin/Login'
 import { PostList } from './pages/admin/PostList'
+import { About } from './pages/public/About'
 import { BlogList } from './pages/public/BlogList'
 import { BlogPost } from './pages/public/BlogPost'
+import { Franchise } from './pages/public/Franchise'
 import { Home } from './pages/public/Home'
 import { NotFound } from './pages/public/NotFound'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -31,9 +33,12 @@ function LazyEditor() {
 // relies on `useBlocker` to warn about unsaved changes during in-app
 // navigation, and that hook is only available on a data router.
 export const router = createBrowserRouter([
-  // Home is the marketing landing page and brings its own dark nav and footer,
-  // so it sits outside PublicLayout — nesting it would stack two headers.
+  // Home, About and Franchise are marketing pages that bring their own dark nav
+  // and footer, so they sit outside PublicLayout — nesting them would stack two
+  // headers.
   { index: true, element: <Home /> },
+  { path: 'about', element: <About /> },
+  { path: 'franchise', element: <Franchise /> },
 
   {
     element: <PublicLayout />,
