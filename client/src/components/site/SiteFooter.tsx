@@ -217,9 +217,20 @@ export function SiteFooter({ showCta = true }: { showCta?: boolean }) {
       </div>
 
       <div className="border-t border-white/10">
-        <p className="container-site py-6 text-[0.8125rem] text-white/45">
-          © {new Date().getFullYear()} EduGlobal Innovation Private Limited — Redefining Education
-        </p>
+        <div className="container-site flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-6 text-[0.8125rem] text-white/45">
+          <p>© {new Date().getFullYear()} EduGlobal Innovation Private Limited — Redefining Education</p>
+          <p>
+            Designed by{' '}
+            <a
+              href="https://thewebsitemakers.in/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-white/70 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+            >
+              The Website Makers
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   )
