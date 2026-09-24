@@ -7,6 +7,16 @@ import { RouterProvider } from 'react-router-dom'
 // package paths directly. Loading it first also lets the Tailwind layer below
 // win any specificity ties.
 import '@fontsource-variable/inter'
+// The public site's faces: Lato for headlines and reading copy, Tajawal for
+// the small section labels. Both are static families, so each weight the type
+// scale asks for is imported by number.
+import '@fontsource/lato/400.css'
+import '@fontsource/lato/700.css'
+import '@fontsource/lato/900.css'
+import '@fontsource/tajawal/700.css'
+// The brand name in the hero headline. Montserrat is variable, so one file
+// covers the whole weight range.
+import '@fontsource-variable/montserrat'
 import '@uiw/react-markdown-preview/markdown.css'
 import './index.css'
 

@@ -1,51 +1,60 @@
-import { CalendarDays } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { formatDate } from '../lib/format'
 import type { PostSummary } from '../types'
+import { LogoMark } from './site/Logo'
+import { TextLink } from './site/ui'
 import { StatusBadge } from './ui/Badge'
 
-/** Blog listing card. Used on the home page and the blog index. */
-export function PostCard({ post, showStatus = false }: { post: PostSummary; showStatus?: boolean }) {
+/** Blog listing card on the public site. */
+export function PostCard({
+  post,
+  showStatus = false,
+}: {
+  post: PostSummary
+  showStatus?: boolean
+}) {
+  const href = `/blog/${post.slug}`
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-md">
-      <Link to={`/blog/${post.slug}`} className="block overflow-hidden">
+    <article className="group flex flex-col">
+      <Link
+        to={href}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="block aspect-[16/10] overflow-hidden rounded-[1.25rem] bg-mist"
+      >
         {post.coverImagePath ? (
           <img
             src={post.coverImagePath}
             alt=""
-            className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="h-44 w-full bg-gradient-to-br from-brand-100 via-brand-50 to-slate-100" />
+          <span className="flex h-full items-center justify-center">
+            <LogoMark className="h-10 w-10 opacity-30" />
+          </span>
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <CalendarDays className="h-3.5 w-3.5" />
-          <time dateTime={post.publishedAt ?? post.createdAt}>
-            {formatDate(post.publishedAt ?? post.createdAt)}
-          </time>
-          {showStatus ? <StatusBadge status={post.status} /> : null}
-        </div>
-
-        <h3 className="text-base font-semibold text-slate-900">
-          <Link to={`/blog/${post.slug}`} className="hover:text-brand-700">
-            {post.title}
-          </Link>
-        </h3>
-
-        {post.excerpt ? (
-          <p className="line-clamp-3 text-sm text-slate-600">{post.excerpt}</p>
-        ) : null}
-
-        <Link
-          to={`/blog/${post.slug}`}
-          className="mt-auto text-sm font-medium text-brand-600 hover:text-brand-700"
-        >
-          Read more →
-        </Link>
+      <div className="mt-5 flex items-center gap-2 text-[0.875rem] text-muted">
+        <time dateTime={post.publishedAt ?? post.createdAt}>
+          {formatDate(post.publishedAt ?? post.createdAt)}
+        </time>
+        {showStatus ? <StatusBadge status={post.status} /> : null}
       </div>
+
+      <h2 className="type-subheading mt-2">
+        <Link to={href} className="transition-colors hover:text-leaf">
+          {post.title}
+        </Link>
+      </h2>
+
+      {post.excerpt ? <p className="mt-3 line-clamp-3">{post.excerpt}</p> : null}
+
+      <TextLink to={href} className="mt-4 self-start">
+        Read more
+      </TextLink>
     </article>
   )
 }

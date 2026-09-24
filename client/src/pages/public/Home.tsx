@@ -1,259 +1,196 @@
-import { ArrowRight, ImageIcon } from 'lucide-react'
-import { HomeFooter } from '../../components/home/HomeFooter'
-import { HomeHeader } from '../../components/home/HomeHeader'
-import { RevenueCalculator } from '../../components/home/RevenueCalculator'
+import { ArrowRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { CalculatorSection } from '../../components/site/CampusCalculator'
+import { usePageTitle } from '../../components/site/hooks'
+import { MovementsSection } from '../../components/site/Movements'
+import { PillarExplorer } from '../../components/site/PillarExplorer'
+import { StatsBand } from '../../components/site/StatsBand'
+import { Tracks } from '../../components/site/Tracks'
+import { Highlights } from '../../components/site/Highlights'
+import { Testimonials } from '../../components/site/Testimonials'
+import { HeroLine, Section, buttonClass } from '../../components/site/ui'
+import { PILLARS } from '../../content/site'
 
-const TICKER_ITEMS = [
-  'TRANSFORMING INSTITUTIONS',
-  'PREPARING LEARNERS',
-  'FRANCHISE SCALE',
-  '360° INFRASTRUCTURE',
-  'IMPACTFUL CONTENT',
-  'ADMISSIONS GROWTH',
-] as const
+/** Phones (below Tailwind's `sm`) get the portrait cut of the hero film. */
+const PHONE_QUERY = '(max-width: 639px)'
 
-const CHAPTERS = [
-  {
-    number: '01',
-    icon: '📐',
-    label: 'CHAPTER 01 — IMPACTFUL CONTENT',
-    title: 'Practical, industry-aligned curricula that elevate student engagement',
-    body: 'Engineered with educators, benchmarked against the world, delivered classroom-ready.',
-  },
-  {
-    number: '02',
-    icon: '📈',
-    label: 'CHAPTER 02 — ADMISSIONS & GROWTH',
-    title: 'Targeted strategies that fix operational gaps and boost enrollment',
-    body: 'Positioning, counselling systems, and a conversion engine that never sleeps.',
-  },
-  {
-    number: '03',
-    icon: '🏛️',
-    label: 'CHAPTER 03 — FRANCHISE MODEL',
-    title: 'Strategic investment partnerships to scale proven educational systems',
-    body: 'Turnkey campuses, governance playbooks, and brand equity from day one.',
-  },
-  {
-    number: '04',
-    icon: '⚙️',
-    label: 'CHAPTER 04 — 360° SUPPORT',
-    title: 'End-to-end facilities and seamless communication for the entire school community',
-    body: 'Administrators, teachers, parents, and students on one operating rhythm.',
-  },
-] as const
+const HERO_FILMS = {
+  phone: { poster: '/video/hero-mobile-poster.jpg', webm: '/video/hero-mobile.webm', mp4: '/video/hero-mobile.mp4' },
+  wide: { poster: '/video/hero-poster.jpg', webm: '/video/hero.webm', mp4: '/video/hero.mp4' },
+} as const
 
-const STATS = [
-  { value: '45+', label: 'PARTNER SCHOOLS' },
-  { value: '3.4×', label: 'ENROLLMENT LIFT' },
-  { value: '98%', label: 'PARTNER RETENTION' },
-  { value: '12,000+', label: 'LEARNERS IMPACTED' },
-] as const
+/** True while the viewport is phone-sized, tracking resizes and rotation. */
+function usePhoneViewport(): boolean {
+  const [phone, setPhone] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(PHONE_QUERY).matches,
+  )
 
-const MOVEMENTS = [
-  {
-    numeral: 'I',
-    title: 'Audit',
-    body: 'Deep diagnostic of operations, admissions funnel, and academic delivery.',
-  },
-  {
-    numeral: 'II',
-    title: 'Blueprint',
-    body: 'A bespoke 24-month institutional roadmap with measurable milestones.',
-  },
-  {
-    numeral: 'III',
-    title: 'Build',
-    body: 'Curriculum deployment, facility upgrades, and staff enablement.',
-  },
-  {
-    numeral: 'IV',
-    title: 'Launch',
-    body: 'Admissions campaigns, community open-days, and brand activation.',
-  },
-  {
-    numeral: 'V',
-    title: 'Scale',
-    body: 'Franchise investment structures and multi-campus expansion.',
-  },
-] as const
+  useEffect(() => {
+    const query = window.matchMedia(PHONE_QUERY)
+    const onChange = () => setPhone(query.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
 
-function Eyebrow({ children }: { children: string }) {
-  return <p className="text-[11px] font-semibold tracking-[0.25em] text-gold-500">{children}</p>
+  return phone
+}
+
+/** Looping background film behind the hero copy: a portrait cut on phones,
+ * the landscape one from `sm` up. Only the matching file is downloaded, and
+ * crossing the breakpoint swaps it. A paper-coloured wash keeps the headline
+ * legible; visitors who prefer reduced motion get the still poster frame. */
+function HeroVideo() {
+  const reduceMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const variant = usePhoneViewport() ? 'phone' : 'wide'
+  const film = HERO_FILMS[variant]
+
+  return (
+    <div aria-hidden="true" className="absolute inset-0 -z-10 motion-safe:animate-fade-in">
+      {/* Keyed on the variant: a <video> only reads its <source>s once, so a
+          new element is needed to switch films. */}
+      <video
+        key={variant}
+        className="h-full w-full object-cover"
+        poster={film.poster}
+        autoPlay={!reduceMotion}
+        muted
+        loop
+        playsInline
+        preload="auto"
+      >
+        <source src={film.webm} type="video/webm" />
+        <source src={film.mp4} type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-gradient-to-t from-paper/95 via-paper/75 to-paper/30 lg:bg-gradient-to-r lg:from-paper/95 lg:via-paper/70 lg:to-transparent" />
+    </div>
+  )
 }
 
 export function Home() {
+  usePageTitle()
+
   return (
-    <div id="top" className="min-h-screen bg-ink-950 font-sans">
-      <HomeHeader />
-
+    <>
       {/* ---------------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-gold-500/10 blur-3xl" />
-
-        <div className="relative mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
-          <div>
-            <Eyebrow>EDUGLOBAL INNOVATION — REDEFINING EDUCATION</Eyebrow>
-
-            <h1 className="mt-7 text-5xl leading-[0.98] font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Build.
-              <br />
-              <span className="text-gold-500">Educate.</span>
-              <br />
-              Innovate.
-            </h1>
-
-            <p className="mt-7 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-              An all-inclusive, A-to-Z educational ecosystem. We partner with schools to bridge
-              operational gaps, optimize admissions, and scale success through a
-              franchise-invested model.
+      <section className="relative isolate overflow-hidden bg-paper">
+        <HeroVideo />
+        <div className="container-site flex min-h-[min(42rem,calc(100svh-5rem))] items-center pt-16 pb-24 sm:pt-20 sm:pb-28 lg:min-h-[min(38rem,calc(100svh-6rem))] lg:pt-16 lg:pb-32">
+          <div className="max-w-[34rem]">
+            <p
+              className="inline-flex items-center gap-2 rounded-full bg-paper/80 py-1.5 pr-3.5 pl-2.5 text-[0.8125rem] font-semibold text-board ring-1 ring-line backdrop-blur-sm motion-safe:animate-fade-in"
+            >
+              <span className="size-2 rounded-full bg-leaf" />
+              Build. Educate. Innovate.
             </p>
-
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold-400"
-              >
-                Partner With Us
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="#ecosystem"
-                className="inline-flex items-center rounded-full border border-white/20 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:border-gold-500 hover:text-gold-400"
-              >
-                Explore the Model
-              </a>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="overflow-hidden rounded-2xl ring-1 ring-white/10">
-              {/* Stand-in for the design's photography — no licensed images were sourced. */}
-              <div className="flex h-72 items-center justify-center bg-gradient-to-br from-ink-700 via-ink-800 to-ink-900 sm:h-96">
-                <ImageIcon className="h-9 w-9 text-white/30" />
+            <h1 className="mt-5 font-display text-[clamp(2.5rem,1.4rem+3.4vw,4rem)] leading-[1.02] font-black tracking-[-0.03em] text-ink">
+              <HeroLine delay={0.08}>Your partner,</HeroLine>
+              <HeroLine delay={0.18}>
+                <span className="font-brand font-extrabold tracking-[-0.005em] text-leaf">
+                  EduGlobal.
+                </span>
+              </HeroLine>
+            </h1>
+            {/* A column so the pillar list can follow the buttons on phones and
+                sit above them from `sm` up. */}
+            <div
+              className="flex flex-col motion-safe:animate-fade-in"
+              style={{ animationDelay: '0.45s' }}
+            >
+              <ul className="mt-6 grid max-w-[26rem] grid-cols-2 gap-x-6 gap-y-3 max-sm:order-last">
+                {PILLARS.map(({ id, name, shortName, icon: Icon }) => (
+                  <li key={id} className="flex items-center gap-2 text-[0.875rem] font-medium text-body">
+                    <Icon aria-hidden="true" className="size-4 text-leaf" strokeWidth={2.2} />
+                    {shortName ?? name}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {/* The primary action: a see-through pill with a navy border
+                    and a light blue knob. The knob pulses softly at rest; on hover
+                    or focus navy floods out from behind it across the pill,
+                    the label turns white and the arrow tips up and away. */}
+                <Link
+                  to="/contact"
+                  className="group relative isolate inline-flex h-14 items-center gap-4 overflow-hidden rounded-full bg-paper/40 pr-2 pl-7 max-sm:bg-transparent max-sm:backdrop-blur-none text-[1.0625rem] font-semibold whitespace-nowrap text-board ring-2 ring-board backdrop-blur-sm transition-[color,transform,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ring-inset hover:-translate-y-0.5 hover:text-white hover:shadow-[0_20px_36px_-16px_rgb(0_16_48/0.6)] focus-visible:text-white active:translate-y-0 active:scale-[0.98]"
+                >
+                  {/* The flood: a navy disc behind the knob that scales up to
+                      cover the pill. */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-1/2 right-2 -z-10 size-10 -translate-y-1/2 rounded-full bg-board transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[12] group-focus-visible:scale-[12]"
+                  />
+                  Partner with us
+                  <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-linear-to-br from-[#8fd3f8] to-[#55bbf3] text-ink">
+                    {/* A slow halo drawing the eye at rest. */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 rounded-full ring-2 ring-[#55bbf3]/70 group-hover:hidden motion-safe:animate-ping motion-safe:[animation-duration:2.4s]"
+                    />
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="size-5 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-rotate-45"
+                    />
+                  </span>
+                </Link>
+                <Link
+                  to="/#ecosystem"
+                  className={buttonClass(
+                    'ctaOutline',
+                    'group spark-border relative max-sm:hidden [--spark-color:var(--color-leaf)] [--spark-delay:-1.8s] hover:[--spark-color:var(--color-pencil-bright)]',
+                    'lg',
+                  )}
+                >
+                  Explore the model
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="size-[1.15rem] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+                  />
+                </Link>
               </div>
-              <div className="bg-ink-900/80 px-5 py-3.5">
-                <p className="text-[10px] font-semibold tracking-[0.22em] text-slate-400">
-                  MODERN ACADEMIC ARCHITECTURE
-                </p>
-              </div>
-            </div>
-
-            <div className="absolute -top-5 -right-3 rounded-xl bg-gold-500 px-5 py-3.5 text-center shadow-lg sm:-right-5">
-              <p className="text-xl font-bold text-ink-950">45+</p>
-              <p className="text-[9px] font-semibold tracking-[0.15em] text-ink-950/80">
-                PARTNER SCHOOLS
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* -------------------------------------------------------------- ticker */}
-      <div className="overflow-hidden border-y border-white/10 bg-ink-900/60 py-5">
-        <div className="flex w-max animate-marquee">
-          {[0, 1].map((copy) => (
-            <div key={copy} className="flex shrink-0 items-center">
-              {TICKER_ITEMS.map((item) => (
-                <span key={item} className="flex items-center">
-                  <span className="px-6 text-gold-500" aria-hidden="true">
-                    ◆
-                  </span>
-                  <span className="text-xs font-semibold tracking-[0.2em] whitespace-nowrap text-slate-400">
-                    {item}
-                  </span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <StatsBand overlap />
 
       {/* ----------------------------------------------------------- manifesto */}
-      <section id="ecosystem" className="scroll-mt-24 border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
-          <Eyebrow>THE MANIFESTO</Eyebrow>
-
-          <h2 className="mt-6 max-w-3xl text-3xl leading-tight font-bold text-white sm:text-5xl">
-            Four chapters.
-            <br />
-            <em className="text-gold-500 italic">One operating system</em>
-            <br />
-            for education.
-          </h2>
-
-          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
+      {/* Little or no top padding: the stats card above already leaves half
+          its height as space below it. On phones the section also tucks 2rem
+          up into that space, so it is layered above the stats band's ground
+          (z-10, later in the page) to keep its label visible. */}
+      <Section id="ecosystem" tone="mist" className="relative z-10 pt-0 max-sm:-mt-8 sm:pt-6">
+        {/* Title and lede share one row, so the card starts close under them. */}
+        <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+          <div>
+            <p className="type-label text-leaf">The Manifesto</p>
+            <h2 className="type-heading mt-3 max-w-[24ch] text-balance">
+              Four chapters. One operating system for education.
+            </h2>
+          </div>
+          <p className="max-w-[26rem] text-body max-sm:hidden lg:pb-1">
             Every EduGlobal partnership runs on the same four pillars — each one engineered,
             measured, and accountable.
           </p>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-2">
-            {CHAPTERS.map((chapter) => (
-              <article
-                key={chapter.number}
-                className="rounded-2xl bg-ink-900 p-7 ring-1 ring-white/10 transition-colors hover:ring-gold-500/40"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="text-sm font-semibold text-slate-500">{chapter.number}</span>
-                  <span className="text-2xl" aria-hidden="true">
-                    {chapter.icon}
-                  </span>
-                </div>
-
-                <p className="mt-6 text-[10px] font-semibold tracking-[0.2em] text-gold-500">
-                  {chapter.label}
-                </p>
-                <h3 className="mt-3 text-lg leading-snug font-semibold text-white sm:text-xl">
-                  {chapter.title}
-                </h3>
-                <p className="mt-4 text-sm leading-relaxed text-slate-400">{chapter.body}</p>
-              </article>
-            ))}
-          </div>
-
-          <dl className="mt-14 grid grid-cols-2 gap-8 border-t border-white/10 pt-10 lg:grid-cols-4">
-            {STATS.map((stat) => (
-              <div key={stat.label}>
-                <dt className="text-[10px] font-semibold tracking-[0.2em] text-slate-500">
-                  {stat.label}
-                </dt>
-                <dd className="mt-2 text-3xl font-bold text-gold-400 sm:text-4xl">
-                  {stat.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        </header>
+        <div className="mt-10">
+          <PillarExplorer />
         </div>
-      </section>
+      </Section>
 
       {/* -------------------------------------------------------- architecture */}
-      <section id="about" className="scroll-mt-24 border-t border-white/10 bg-ink-900/40">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
-          <Eyebrow>PARTNERSHIP ARCHITECTURE</Eyebrow>
+      <MovementsSection />
 
-          <h2 className="mt-6 max-w-3xl text-3xl leading-tight font-bold text-white sm:text-5xl">
-            From first audit to full scale
-            <br />
-            <em className="text-gold-500 italic">— in five movements.</em>
-          </h2>
+      {/* ---------------------------------------------------------- calculator */}
+      <CalculatorSection />
 
-          <ol className="mt-14 space-y-3">
-            {MOVEMENTS.map((movement) => (
-              <li
-                key={movement.numeral}
-                className="grid gap-4 rounded-xl bg-ink-950/60 p-6 ring-1 ring-white/10 sm:grid-cols-[4rem_10rem_1fr] sm:items-baseline sm:gap-6"
-              >
-                <span className="text-sm font-semibold text-gold-500">{movement.numeral}</span>
-                <h3 className="text-lg font-semibold text-white">{movement.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-400">{movement.body}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      <Highlights />
 
-      <RevenueCalculator />
-      <HomeFooter />
-    </div>
+      <Testimonials />
+
+      <Tracks />
+    </>
   )
 }
