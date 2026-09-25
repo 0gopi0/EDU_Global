@@ -11,5 +11,10 @@
 process.env.NODE_ENV ??= 'production'
 
 // Dynamic import so NODE_ENV is set before the app's config modules evaluate
-// (static imports are hoisted above this file's own statements).
-await import('./server/dist/index.js')
+// (static imports are hoisted above this file's own statements). Not awaited:
+// Hostinger's LiteSpeed runner loads this file with require(), which cannot
+// load a module that uses top-level await.
+import('./server/dist/index.js').catch((error) => {
+  console.error('[server] failed to start:', error)
+  process.exit(1)
+})
