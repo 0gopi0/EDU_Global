@@ -20,6 +20,10 @@ export function createApp(): Express {
 
   app.disable('x-powered-by')
 
+  // Behind Hostinger's (LiteSpeed) reverse proxy: needed for a correct req.ip
+  // in the login rate limiter and for X-Forwarded-Proto.
+  app.set('trust proxy', 1)
+
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -62,7 +66,7 @@ export function createApp(): Express {
 
     // SPA fallback so deep links and refreshes resolve. A RegExp is used
     // because Express 5 changed the meaning of string wildcards.
-    app.get(/^(?!\/api\/|\/uploads\/).*/, (_req, res) => {
+    app.get(/^(?!\/(api|uploads)(\/|$)).*/, (_req, res) => {
       res.sendFile(path.join(clientDistDir, 'index.html'))
     })
   }

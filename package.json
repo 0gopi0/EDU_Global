@@ -2,6 +2,7 @@
   "name": "edu-global",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "EDU_Global - fullstack blog with admin panel (React + Express + MySQL)",
   "workspaces": [
     "client",
@@ -9,11 +10,12 @@
   ],
   "scripts": {
     "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build -w client",
+    "build": "npm run build -w server && npm run build -w client",
     "start": "npm run start -w server",
     "db:migrate": "npm run db:migrate -w server",
     "db:seed": "npm run db:seed -w server",
-    "typecheck": "npm run typecheck -w server && npm run typecheck -w client"
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
+    "postinstall": "npm run build"
   },
   "engines": {
     "node": ">=20"

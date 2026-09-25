@@ -79,7 +79,7 @@ Run these from the repository root.
 | --- | --- |
 | `npm run dev` | Starts the API and the Vite dev server together |
 | `npm run build` | Type-checks and builds the client into `client/dist` |
-| `npm start` | Runs the API in production mode, serving `client/dist` |
+| `npm start` | Runs the API in production mode, serving the built client from `dist/` |
 | `npm run db:migrate` | Creates the database and tables |
 | `npm run seed` | Creates or updates the admin account |
 | `npm run typecheck` | Type-checks both workspaces |
@@ -120,7 +120,7 @@ In development the browser talks only to Vite on port 5173, and Vite proxies `/a
 `/uploads` through to Express on port 4000. That keeps the API **same-origin**, which means
 no CORS setup and no `sameSite=None` on the session cookie.
 
-In production `npm start` runs Express alone, and it serves `client/dist` — so it stays
+In production `npm start` runs Express alone, and it serves the built client from `dist/` — so it stays
 same-origin there too.
 
 ---
@@ -185,6 +185,23 @@ List endpoints return `{ items, page, limit, total, totalPages }`.
 3. Serve over HTTPS.
 4. Create a dedicated MySQL user rather than using `root`.
 
+### Deploying to Hostinger (Node.js app, Express preset)
+
+- **Application root:** the repo root. **Startup file:** `server.js`. **Node.js:** 20 or newer.
+- `npm install` builds everything through `postinstall` (server → `server/dist`, client →
+  root `dist/`). Build tools are regular dependencies because Hostinger skips devDependencies.
+- On boot the server applies `db/schema.sql` and, if `ADMIN_EMAIL` / `ADMIN_PASSWORD` are set,
+  creates that admin account if it doesn't exist yet. You don't need SSH, but the database itself
+  must already exist (create it in hPanel → Databases).
+- Set these in hPanel → Node.js app → Environment variables: `NODE_ENV=production`,
+  `DB_HOST=127.0.0.1` (not `localhost`), `DB_PORT`, `DB_USER` and `DB_NAME` (use the full
+  `u123456789_` prefixed names), `DB_PASSWORD`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+  **Do not set `PORT` or `HOST`**, because Hostinger injects them.
+- After each deploy, check `https://yourdomain/api/health`. It returns
+  `{"ok":true,"database":"up"}`.
+- Uploaded cover images live in `server/uploads/`, which is not in git. Back it up before
+  redeploying if your deploy wipes the app folder.
+
 ---
 
 ## Troubleshooting
@@ -209,11 +226,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\reset-mysql-root.ps1 -NewPass
 ```
 
 **`npm install` finishes but `tsc` / `vite` / `tsx` are missing.**
-Your shell has `NODE_ENV=production`, which makes npm skip all devDependencies. Install with:
-
-```bash
-npm install --include=dev
-```
+Every build tool is a regular dependency, so this should not happen. Delete `node_modules` and
+run `npm install` again.
 
 **"Cannot reach MySQL: ER_ACCESS_DENIED_ERROR".**
 `DB_USER` / `DB_PASSWORD` in `server/.env` are wrong. Note that MySQL `root` accounts often

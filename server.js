@@ -2,14 +2,14 @@
  * Production startup file for hosts (e.g. Hostinger) that ask for a
  * `server.js` entry point.
  *
- * The app itself is TypeScript (`server/src/index.ts`) and is served in
- * production by Express (API + static `client/dist` + SPA fallback), so this
- * file only registers the tsx loader and hands off to it.
+ * The app compiles to `server/dist` via `npm run build -w server` (run
+ * automatically by `postinstall`), and in production Express serves both the
+ * API and the built client (plus the SPA fallback) from that single process.
  *
- * Run: `node server.js` (from the repo root, after `npm install` + `npm run build`)
+ * Run: `node server.js` (from the repo root, after `npm install`)
  */
 process.env.NODE_ENV ??= 'production'
 
-require('tsx/cjs')
-
-module.exports = require('./server/src/index.ts')
+// Dynamic import so NODE_ENV is set before the app's config modules evaluate
+// (static imports are hoisted above this file's own statements).
+await import('./server/dist/index.js')

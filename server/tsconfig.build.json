@@ -1,0 +1,15 @@
+{
+  // Production build config. Emits plain Node-runnable ESM to `server/dist`
+  // using the same module resolution as development, then `postbuild`
+  // (scripts/fix-esm-extensions.js) appends `.js` to the extensionless
+  // relative imports, which Node's ESM loader requires.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -3,7 +3,12 @@ import './dotenv'
 
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  // Hostinger injects PORT; never set it (or HOST) in the hPanel env panel.
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  HOST: z
+    .string()
+    .min(1)
+    .default(() => (process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1')),
   JWT_SECRET: z.string().min(32, 'must be at least 32 characters long'),
   JWT_EXPIRES_IN: z.string().min(1).default('7d'),
   COOKIE_SECURE: z.enum(['true', 'false']).optional(),
@@ -20,7 +25,7 @@ if (!parsed.success) {
     .map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`)
     .join('\n')
 
-  console.error(`\nInvalid environment configuration in server/.env:\n${issues}\n`)
+  console.error(`\nInvalid environment configuration (server/.env or host env vars):\n${issues}\n`)
   console.error('Copy server/.env.example to server/.env and fill in the values.\n')
   process.exit(1)
 }
