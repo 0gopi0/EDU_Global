@@ -1,4 +1,6 @@
-import { Outlet, useMatches } from 'react-router-dom'
+import { useRef } from 'react'
+import { Outlet, useLocation, useMatches } from 'react-router-dom'
+import { useSiteReveal } from '../components/site/reveal'
 import { SiteFooter } from '../components/site/SiteFooter'
 import { SiteHeader } from '../components/site/SiteHeader'
 
@@ -11,12 +13,14 @@ export interface SiteRouteHandle {
 /** Header, page and footer for every public page, blog included. */
 export function SiteLayout() {
   const matches = useMatches()
+  const rootRef = useRef<HTMLDivElement>(null)
+  useSiteReveal(rootRef, useLocation().pathname)
   const showCta = !matches.some(
     (match) => (match.handle as SiteRouteHandle | undefined)?.footerCta === false,
   )
 
   return (
-    <div className="site flex min-h-full flex-col antialiased">
+    <div ref={rootRef} className="site flex min-h-full flex-col antialiased">
       <a
         href="#main"
         className="sr-only z-[60] rounded-full bg-ink px-5 py-3 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
